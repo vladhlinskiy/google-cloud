@@ -65,6 +65,8 @@
     <dropwizard.metrics-core.version>3.2.6</dropwizard.metrics-core.version>
     <google.cloud.bigtable.version>1.11.0</google.cloud.bigtable.version>
     <google.cloud.bigquery.version>1.36.0</google.cloud.bigquery.version>
+    <!-- MapReduce job fails on DataProc. Review for dependency conflicts -->
+    <!--<google.cloud.bigquery.version>1.84.0</google.cloud.bigquery.version>-->
     <google.cloud.pubsub.version>1.36.0</google.cloud.pubsub.version>
     <google.cloud.spanner.version>0.53.0-beta</google.cloud.spanner.version>
     <google.cloud.speech.version>0.54.0-beta</google.cloud.speech.version>
@@ -187,6 +189,10 @@
           <groupId>org.apache.hbase</groupId>
           <artifactId>hbase-server</artifactId>
         </exclusion>
+        <exclusion>
+          <groupId>org.apache.hbase</groupId>
+          <artifactId>hbase-client</artifactId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -198,6 +204,21 @@
       <groupId>org.apache.hbase</groupId>
       <artifactId>hbase-shaded-server</artifactId>
       <version>${hbase-shaded-server.version}</version>
+    </dependency>
+    <dependency>
+      <!--
+        Required by bigtable-hbase-1.x-mapreduce instead of excluded non-shaded version.
+        Shaded library is used to avoid dependency conflicts with Datastore module on profobuf-java dependency.
+        Bigtable requires version 2.x and Datastore module requires 3.x protocol.
+      -->
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-shaded-client</artifactId>
+      <version>${hbase-shaded-server.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hbase</groupId>
+      <artifactId>hbase-client</artifactId>
+      <version>1.2.6</version>
     </dependency>
     <dependency>
       <groupId>io.dropwizard.metrics</groupId>
@@ -547,6 +568,7 @@
               com.google.cloud.hadoop.*;
               org.apache.spark.streaming.pubsub*;
               org.apache.hadoop.hbase.mapreduce.*;
+              org.apache.hadoop.hbase.security.token.*;
             </_exportcontents>
           </instructions>
         </configuration>
